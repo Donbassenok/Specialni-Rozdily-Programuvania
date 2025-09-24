@@ -1,0 +1,18 @@
+# Віртуальні середовища
+venv/
+venv311/
+venv313/
+
+# Кеш Python
+__pycache__/
+*.pyc
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Системні файли
+.DS_Store
+Thumbs.db
+
+# IDE (VSCode, PyCharm)
+.vscode/
