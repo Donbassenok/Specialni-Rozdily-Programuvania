@@ -18,3 +18,5 @@ Thumbs.db
 .vscode/
 
 *.csv
+
+lab1/household_power_consumption.txt
