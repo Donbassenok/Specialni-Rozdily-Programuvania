@@ -1,4 +1,5 @@
 #pragma once
+#include <opencv2/opencv.hpp>
 
 class KeyProcessor {
 public:
@@ -7,14 +8,23 @@ public:
         INVERT,
         BLUR,
         CANNY,
-        SOBEL
+        SOBEL,
+        ZOOM 
     };
 
 private:
     Mode mode;
+    float zoomLevel;      
+    cv::Point zoomCenter; 
 
 public:
     KeyProcessor();
-    Mode processKey(int key);
+  
+    void processKey(int key);
+    
+    void updateMouse(int x, int y);
+
     Mode getMode() const;
+    float getZoomLevel() const;
+    cv::Point getZoomCenter() const;
 };

@@ -7,6 +7,7 @@ private:
 
 public:
     CameraProvider(int index = 0);
-    cv::Mat getFrame();
     bool isOpened() const;
+
+    bool getFrame(cv::Mat& frame);
 };

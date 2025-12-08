@@ -3,6 +3,11 @@
 #include "KeyProcessor.hpp"
 
 class FrameProcessor {
+private:
+    cv::Mat edges; 
+    cv::Mat gx, gy;   
+    cv::Mat roi, enlargedRoi; 
+
 public:
-    cv::Mat process(const cv::Mat& frame, KeyProcessor::Mode mode);
+    void process(const cv::Mat& src, cv::Mat& dst, const KeyProcessor& keyProc);
 };
