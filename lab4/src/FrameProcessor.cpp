@@ -1,5 +1,14 @@
 #include "FrameProcessor.hpp"
 
+FrameProcessor::FrameProcessor() {
+    faceDetector.start();
+}
+
+FrameProcessor::~FrameProcessor() {
+    faceDetector.stop();
+}
+
+
 void FrameProcessor::process(const cv::Mat& src, cv::Mat& dst, const KeyProcessor& keyProc) {
     
     KeyProcessor::Mode mode = keyProc.getMode();
@@ -54,6 +63,19 @@ void FrameProcessor::process(const cv::Mat& src, cv::Mat& dst, const KeyProcesso
             enlargedRoi.copyTo(dst(destRect));
 
             cv::rectangle(dst, sourceRect, cv::Scalar(0, 255, 0), 1);
+            break;
+        }
+
+        case KeyProcessor::FACE: {
+            faceDetector.updateFrame(src);
+
+            std::vector<cv::Rect> faces = faceDetector.getFaces();
+
+            for (const auto& rect : faces) {
+                cv::rectangle(dst, rect, cv::Scalar(0, 255, 0), 2);
+                cv::putText(dst, "Face", cv::Point(rect.x, rect.y - 5),
+                            cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0), 1);
+            }
             break;
         }
 

@@ -2,8 +2,10 @@
 #include <iostream>
 
 FaceDetector::FaceDetector() : stopFlag(false), hasNewFrame(false) {
+    std::string protoPath = std::string(RESOURCES_PATH) + "deploy.prototxt";
+    std::string modelPath = std::string(RESOURCES_PATH) + "res10_300x300_ssd_iter_140000.caffemodel";
     try {
-        net = cv::dnn::readNetFromCaffe("deploy.prototxt", "res10_300x300_ssd_iter_140000.caffemodel");
+        net = cv::dnn::readNetFromCaffe(protoPath, modelPath);
     } catch (const cv::Exception& e) {
         std::cerr << "FaceDetector Error: " << e.what() << std::endl;
     }
