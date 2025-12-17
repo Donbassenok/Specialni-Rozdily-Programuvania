@@ -11,6 +11,9 @@ void KeyProcessor::processKey(int key) {
         case '4': mode = SOBEL; break;
         case '5': mode = ZOOM; break; 
 
+        case 'f': 
+        case 'F': mode = FACE; break; 
+
         case '=': zoomLevel += 0.5f; break;
         case '-': zoomLevel = std::max(1.0f, zoomLevel - 0.5f); break;
     }

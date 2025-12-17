@@ -9,7 +9,8 @@ public:
         BLUR,
         CANNY,
         SOBEL,
-        ZOOM 
+        ZOOM,
+        FACE 
     };
 
 private:
