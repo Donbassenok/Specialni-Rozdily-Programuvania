@@ -1,0 +1,36 @@
+name: Build Project
+
+on: [push, pull_request]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install OpenCV & Tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libopencv-dev cmake g++ wget
+
+    - name: Run Preinstall Script
+      run: |
+        if [ -f scripts/preinstall.sh ]; then
+          chmod +x scripts/preinstall.sh
+          ./scripts/preinstall.sh "${GITHUB_WORKSPACE}"
+        else
+          echo "WARNING: scripts/preinstall.sh not found!"
+        fi
+
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+
+    - name: Build
+      run: |
+        cd build
+        make
