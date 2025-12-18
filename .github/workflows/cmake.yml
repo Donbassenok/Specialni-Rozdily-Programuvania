@@ -6,6 +6,10 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./lab4
+
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
@@ -19,9 +23,10 @@ jobs:
       run: |
         if [ -f scripts/preinstall.sh ]; then
           chmod +x scripts/preinstall.sh
-          ./scripts/preinstall.sh "${GITHUB_WORKSPACE}"
+          ./scripts/preinstall.sh "$(pwd)"
         else
-          echo "WARNING: scripts/preinstall.sh not found!"
+          echo "ERROR: scripts/preinstall.sh not found! Check folder name."
+          exit 1
         fi
 
     - name: Configure CMake
