@@ -3,6 +3,7 @@
 #include "KeyProcessor.hpp"
 #include "FrameProcessor.hpp"
 #include "Logger.hpp"
+#include "ConfigManager.hpp"
 
 void onMouse(int event, int x, int y, int flags, void* userdata) {
     KeyProcessor* keyProc = (KeyProcessor*)userdata;
@@ -12,12 +13,26 @@ void onMouse(int event, int x, int y, int flags, void* userdata) {
 }
 
 int main() {
-    Logger::getInstance().setLevel(LogLevel::INFO);
+    ConfigManager::getInstance().loadConfig("settings.json");
+
+    int camId = ConfigManager::getInstance().getCameraId();
+    int width = ConfigManager::getInstance().getFrameWidth();
+    int height = ConfigManager::getInstance().getFrameHeight();
+    
+    std::string logLevel = ConfigManager::getInstance().getLogLevel();
+    if (logLevel == "DEBUG") Logger::getInstance().setLevel(LogLevel::DEBUG);
+    else if (logLevel == "WARN") Logger::getInstance().setLevel(LogLevel::WARN);
+    else if (logLevel == "ERROR") Logger::getInstance().setLevel(LogLevel::ERROR);
+    else Logger::getInstance().setLevel(LogLevel::INFO);
+
     Logger::getInstance().info("Application started"); 
 
-    CameraProvider camera(0); 
+    Logger::getInstance().info("Opening camera " + std::to_string(camId) + " with resolution " + std::to_string(width) + "x" + std::to_string(height));
+
+    CameraProvider camera(camId, width, height);
+    
     if (!camera.isOpened()) {
-        Logger::getInstance().error("Failed to open camera!");
+        Logger::getInstance().error("Failed to open camera with ID: " + std::to_string(camId));
         return -1;
     }
     Logger::getInstance().info("Camera opened successfully");

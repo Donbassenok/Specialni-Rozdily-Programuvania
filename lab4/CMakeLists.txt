@@ -18,6 +18,8 @@ include_directories(src)
 
 file(GLOB SOURCES "src/*.cpp")
 
+include_directories(resources)
+
 add_executable(lab4 ${SOURCES})
 
 target_link_libraries(lab4 ${OpenCV_LIBS} Threads::Threads)

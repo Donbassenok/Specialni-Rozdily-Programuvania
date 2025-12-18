@@ -1,17 +1,23 @@
 #include "FaceDetector.hpp"
 #include <iostream>
-#include "Logger.hpp" 
+#include "Logger.hpp"
+#include "ConfigManager.hpp"
 
 FaceDetector::FaceDetector() : stopFlag(false), hasNewFrame(false) {
     Logger::getInstance().info("Initializing FaceDetector...");
-    std::string protoPath = std::string(RESOURCES_PATH) + "deploy.prototxt";
-    std::string modelPath = std::string(RESOURCES_PATH) + "res10_300x300_ssd_iter_140000.caffemodel";
+
+    std::string protoFile = ConfigManager::getInstance().getModelProto();
+    std::string weightsFile = ConfigManager::getInstance().getModelWeights();
+    
+    std::string protoPath = std::string(RESOURCES_PATH) + protoFile;
+    std::string modelPath = std::string(RESOURCES_PATH) + weightsFile;
+
     try {
         net = cv::dnn::readNetFromCaffe(protoPath, modelPath);
         if (net.empty()) {
              Logger::getInstance().error("Neural network is empty after loading!");
         } else {
-             Logger::getInstance().info("Neural network loaded successfully.");
+             Logger::getInstance().info("Neural network loaded successfully from: " + protoFile);
         }
     } catch (const cv::Exception& e) {
         Logger::getInstance().error("Exception loading model: " + std::string(e.what()));
@@ -47,6 +53,10 @@ std::vector<cv::Rect> FaceDetector::getFaces() {
 
 void FaceDetector::worker() {
     Logger::getInstance().info("FaceDetector worker thread started");
+    
+    float threshold = ConfigManager::getInstance().getModelThreshold();
+    Logger::getInstance().info("Face detection threshold set to: " + std::to_string(threshold));
+
     while (!stopFlag) {
         cv::Mat frameToProcess;
         bool shouldProcess = false;
@@ -72,7 +82,7 @@ void FaceDetector::worker() {
             for (int i = 0; i < detectionMat.rows; i++) {
                 float confidence = detectionMat.at<float>(i, 2);
 
-                if (confidence > 0.5) {
+                if (confidence > threshold) {
                     int x1 = static_cast<int>(detectionMat.at<float>(i, 3) * frameToProcess.cols);
                     int y1 = static_cast<int>(detectionMat.at<float>(i, 4) * frameToProcess.rows);
                     int x2 = static_cast<int>(detectionMat.at<float>(i, 5) * frameToProcess.cols);

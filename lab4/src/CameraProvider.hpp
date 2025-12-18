@@ -6,7 +6,7 @@ private:
     cv::VideoCapture cap;
 
 public:
-    CameraProvider(int index = 0);
+    CameraProvider(int index, int width, int height);
     bool isOpened() const;
 
     bool getFrame(cv::Mat& frame);
