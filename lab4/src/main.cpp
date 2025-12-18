@@ -2,6 +2,7 @@
 #include "CameraProvider.hpp"
 #include "KeyProcessor.hpp"
 #include "FrameProcessor.hpp"
+#include "Logger.hpp"
 
 void onMouse(int event, int x, int y, int flags, void* userdata) {
     KeyProcessor* keyProc = (KeyProcessor*)userdata;
@@ -11,8 +12,15 @@ void onMouse(int event, int x, int y, int flags, void* userdata) {
 }
 
 int main() {
+    Logger::getInstance().setLevel(LogLevel::INFO);
+    Logger::getInstance().info("Application started"); 
+
     CameraProvider camera(0); 
-    if (!camera.isOpened()) return -1;
+    if (!camera.isOpened()) {
+        Logger::getInstance().error("Failed to open camera!");
+        return -1;
+    }
+    Logger::getInstance().info("Camera opened successfully");
 
     KeyProcessor keyProc;
     FrameProcessor frameProc;
@@ -33,7 +41,10 @@ int main() {
 
         cv::imshow("Camera", processedFrame);
 
-        if (key == 27) break;
+        if (key == 27) {
+            Logger::getInstance().info("ESC pressed. Exiting application.");
+            break;
+        }
     }
     return 0;
 }

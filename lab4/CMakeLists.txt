@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(OpenCV REQUIRED)
 find_package(Threads REQUIRED)
 
+add_compile_definitions(PROJECT_ROOT="${CMAKE_SOURCE_DIR}/")
+
 set(RESOURCES_DIR "${CMAKE_SOURCE_DIR}/resources")
 
 add_compile_definitions(RESOURCES_PATH="${RESOURCES_DIR}/")

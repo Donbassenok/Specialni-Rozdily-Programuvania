@@ -1,4 +1,5 @@
 #include "FrameProcessor.hpp"
+#include "Logger.hpp"
 
 FrameProcessor::FrameProcessor() {
     faceDetector.start();
@@ -11,6 +12,11 @@ FrameProcessor::~FrameProcessor() {
 
 void FrameProcessor::process(const cv::Mat& src, cv::Mat& dst, const KeyProcessor& keyProc) {
     
+    if (src.empty()) {
+            Logger::getInstance().warn("FrameProcessor received empty frame!");
+            return;
+        }
+
     KeyProcessor::Mode mode = keyProc.getMode();
 
     if (mode != KeyProcessor::ORIGINAL) {
@@ -53,6 +59,14 @@ void FrameProcessor::process(const cv::Mat& src, cv::Mat& dst, const KeyProcesso
 
             cv::Rect sourceRect(x, y, roiW, roiH);
             roi = src(sourceRect);
+
+            if (roi.empty()) {
+                Logger::getInstance().error("Zoom ROI is empty! Check calculation logic.");
+                return;
+            }
+            if (x < 0 || y < 0 || x + roiW > src.cols || y + roiH > src.rows) {
+                Logger::getInstance().error("Zoom ROI out of bounds! Resetting zoom.");
+            }
 
             cv::resize(roi, enlargedRoi, cv::Size(pipWidth, pipHeight), 0, 0, cv::INTER_LINEAR);
 

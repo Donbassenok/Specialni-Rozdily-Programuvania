@@ -1,13 +1,20 @@
 #include "FaceDetector.hpp"
 #include <iostream>
+#include "Logger.hpp" 
 
 FaceDetector::FaceDetector() : stopFlag(false), hasNewFrame(false) {
+    Logger::getInstance().info("Initializing FaceDetector...");
     std::string protoPath = std::string(RESOURCES_PATH) + "deploy.prototxt";
     std::string modelPath = std::string(RESOURCES_PATH) + "res10_300x300_ssd_iter_140000.caffemodel";
     try {
         net = cv::dnn::readNetFromCaffe(protoPath, modelPath);
+        if (net.empty()) {
+             Logger::getInstance().error("Neural network is empty after loading!");
+        } else {
+             Logger::getInstance().info("Neural network loaded successfully.");
+        }
     } catch (const cv::Exception& e) {
-        std::cerr << "FaceDetector Error: " << e.what() << std::endl;
+        Logger::getInstance().error("Exception loading model: " + std::string(e.what()));
     }
 }
 
@@ -39,6 +46,7 @@ std::vector<cv::Rect> FaceDetector::getFaces() {
 }
 
 void FaceDetector::worker() {
+    Logger::getInstance().info("FaceDetector worker thread started");
     while (!stopFlag) {
         cv::Mat frameToProcess;
         bool shouldProcess = false;
@@ -82,4 +90,5 @@ void FaceDetector::worker() {
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
     }
+    Logger::getInstance().info("FaceDetector worker thread stopped");
 }
