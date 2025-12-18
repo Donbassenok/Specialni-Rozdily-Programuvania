@@ -1,0 +1,41 @@
+name: Build Project
+
+on: [push, pull_request]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./lab4
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install OpenCV & Tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libopencv-dev cmake g++ wget
+
+    - name: Run Preinstall Script
+      run: |
+        if [ -f scripts/preinstall.sh ]; then
+          chmod +x scripts/preinstall.sh
+          ./scripts/preinstall.sh "$(pwd)"
+        else
+          echo "ERROR: scripts/preinstall.sh not found! Check folder name."
+          exit 1
+        fi
+
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+
+    - name: Build
+      run: |
+        cd build
+        make

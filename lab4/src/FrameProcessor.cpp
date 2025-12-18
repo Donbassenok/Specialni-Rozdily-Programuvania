@@ -1,7 +1,22 @@
 #include "FrameProcessor.hpp"
+#include "Logger.hpp"
+
+FrameProcessor::FrameProcessor() {
+    faceDetector.start();
+}
+
+FrameProcessor::~FrameProcessor() {
+    faceDetector.stop();
+}
+
 
 void FrameProcessor::process(const cv::Mat& src, cv::Mat& dst, const KeyProcessor& keyProc) {
     
+    if (src.empty()) {
+            Logger::getInstance().warn("FrameProcessor received empty frame!");
+            return;
+        }
+
     KeyProcessor::Mode mode = keyProc.getMode();
 
     if (mode != KeyProcessor::ORIGINAL) {
@@ -45,6 +60,14 @@ void FrameProcessor::process(const cv::Mat& src, cv::Mat& dst, const KeyProcesso
             cv::Rect sourceRect(x, y, roiW, roiH);
             roi = src(sourceRect);
 
+            if (roi.empty()) {
+                Logger::getInstance().error("Zoom ROI is empty! Check calculation logic.");
+                return;
+            }
+            if (x < 0 || y < 0 || x + roiW > src.cols || y + roiH > src.rows) {
+                Logger::getInstance().error("Zoom ROI out of bounds! Resetting zoom.");
+            }
+
             cv::resize(roi, enlargedRoi, cv::Size(pipWidth, pipHeight), 0, 0, cv::INTER_LINEAR);
 
             cv::rectangle(enlargedRoi, cv::Rect(0,0,pipWidth, pipHeight), cv::Scalar(0,255,0), 2);
@@ -54,6 +77,19 @@ void FrameProcessor::process(const cv::Mat& src, cv::Mat& dst, const KeyProcesso
             enlargedRoi.copyTo(dst(destRect));
 
             cv::rectangle(dst, sourceRect, cv::Scalar(0, 255, 0), 1);
+            break;
+        }
+
+        case KeyProcessor::FACE: {
+            faceDetector.updateFrame(src);
+
+            std::vector<cv::Rect> faces = faceDetector.getFaces();
+
+            for (const auto& rect : faces) {
+                cv::rectangle(dst, rect, cv::Scalar(0, 255, 0), 2);
+                cv::putText(dst, "Face", cv::Point(rect.x, rect.y - 5),
+                            cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0), 1);
+            }
             break;
         }
 
